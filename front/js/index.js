@@ -2,22 +2,21 @@ const items = document.getElementById("items");
 
 // Fonction pour récupérer les produits depuis l'API
 function fetchArticles() {
-  fetch("http://localhost:3000/api/products")
-    .then(function (res) {
-      if (res.ok) {
-        return res.json();
-      }
-    })
+  return fetch("http://localhost:3000/api/products")
+  .then(function (res) {
 
-    .then(function (article) {
-      const articles = URL.createObjectURL(article);
-      console.log(article);
-    })
-
-.catch(function (error) {
-      alert(error);
-      // Une erreur est survenue
-    });
+    if (res.ok) {
+      return res.json();
+    }
+  })
+  .then((data) => {
+    return data
+  })
+  .catch(function (error) {
+    alert('Error')
+    console.log('error', error)
+    // Une erreur est survenue
+  });
 }
 
 // Création  du modèle produit
@@ -36,8 +35,8 @@ const createKanap = (kanap) => {
 
   const article = document.createElement("article");
   article.appendChild(image);
-  article.appendChild(h3);
-  article.appendChild(p);
+  article.appendChild(title);
+  article.appendChild(description);
 
   const lien = document.createElement("a");
   lien.setAttribute("href", `./product.html?id=${kanap._id}`);
@@ -52,8 +51,8 @@ async function main() {
 
   const getDatas = await fetchArticles();
   for (article of getDatas) {
-    createKanap(article);
     items.appendChild(createKanap(article));
   }
 }
+  
 main();
