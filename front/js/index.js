@@ -2,7 +2,7 @@ const items = document.getElementById("items");
 
 // Fonction pour récupérer les produits depuis l'API
 function fetchArticles() {
-  return fetch("http://localhost:3000/api/products")
+  const fetchResult = fetch("http://localhost:3000/api/products")
   .then(function (res) {
 
     if (res.ok) {
@@ -17,6 +17,8 @@ function fetchArticles() {
     console.log('error', error)
     // Une erreur est survenue
   });
+  console.log(fetchResult);
+  return fetchResult
 }
 
 // Création  du modèle produit
