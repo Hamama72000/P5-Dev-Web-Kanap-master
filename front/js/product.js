@@ -51,6 +51,34 @@ function changeEventHandler(e) {
   console.log("target", e.target.value)
 }
 
+// Pour enregistrer dans le localStorage
+function saveStorage(storage) {
+  localStorage.setItem("storage", JSON.stringify(storage))
+}
+
+// Pour récupérer le localStorage
+function getStorage(){
+  const storage = localStorage.getItem("storage")
+  
+  if (storage == null) {
+    return[]
+  } else {
+    return JSON.parse(storage)
+  }
+}
+
+function ajoutProduit(produit){
+  let storage = getStorage();
+  let product = storage.find(p => p.id == produit.id) 
+    if (product!= undefined){
+    product.quantity += produit.quantity
+    } else {
+    storage.push(produit);
+    } 
+    saveStorage(storage)
+  }
+
+
 async function main() {
   console.log('------> showArticle')
   // get articles id
@@ -59,33 +87,35 @@ async function main() {
   const article = await getArticle(articleID)
   // show articles 
   showArticle(article)
+  let color = null
+  let quantity = null
 
   document.getElementById("colors")
   .addEventListener("change", function(e) {
-    const color= e.target.value;
+    color = e.target.value;
   });
 
   document.getElementById("quantity")
   .addEventListener("change", function(e) {
-    const quantity= e.target.value;
-    console.log(e.target.value);
+    quantity= e.target.value;
   });
-
-
 
   const button = document.getElementById('addToCart') 
   button.addEventListener("click", function() {  
+    console.log(color);
     const articleStorage = {
-      id : articleID, 
-      color: colors,
-      quantity: quantity,
+      id : articleID + "." + color, 
+      color: color,
+      quantity: parseInt(quantity),
+      image: article.imageUrl,
+      alt: article.altTxt
     }
-    window.localStorage.setItem("article", JSON.stringify(articleStorage));
-    const getLocalStorage = window.localStorage.getItem("article");
-  
-    console.log(getLocalStorage);
+
+    ajoutProduit(articleStorage)
   });
 
 }
+
+
 
 main()
