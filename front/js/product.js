@@ -59,8 +59,8 @@ function saveStorage(storage) {
 // Pour récupérer le localStorage
 function getStorage(){
   const storage = localStorage.getItem("storage")
-  
-  if (storage == null) {
+  /* Si le localStorage est vide on retourne quand meme un tableau vide sinon... permet d'ajouter et d'afficher les ajouts*/
+    if (storage == null) {
     return[]
   } else {
     return JSON.parse(storage)
@@ -70,12 +70,12 @@ function getStorage(){
 function ajoutProduit(produit){
   let storage = getStorage();
   let product = storage.find(p => p.id == produit.id) 
-    if (product!= undefined){
-    product.quantity += produit.quantity
-    } else {
-    storage.push(produit);
+    if (product!= undefined){             /*si le produit est different de indefini on ajoute la quantité*/
+    product.quantity += produit.quantity 
+    } else {                              /* sinon */
+    storage.push(produit);                /* ajoute le produit si on trouve un element ajouter*/
     } 
-    saveStorage(storage)
+    saveStorage(storage)                  /* on sauvegarde*/
   }
 
 
@@ -100,15 +100,18 @@ async function main() {
     quantity= e.target.value;
   });
 
+
   const button = document.getElementById('addToCart') 
   button.addEventListener("click", function() {  
-    console.log(color);
+
     const articleStorage = {
-      id : articleID + "." + color, 
+      id : articleID, 
       color: color,
-      quantity: parseInt(quantity),
+      quantity: parseInt(quantity), /* pour que la quantité soit traduite en number*/
       image: article.imageUrl,
-      alt: article.altTxt
+      alt: article.altTxt,
+      price: article.price,
+      name: article.name
     }
 
     ajoutProduit(articleStorage)

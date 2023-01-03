@@ -47,6 +47,7 @@ const createKanap = (kanap) => {
   return lien;
 };
 
+
 // Rendu de la page d'accueil
 
 async function main() {
