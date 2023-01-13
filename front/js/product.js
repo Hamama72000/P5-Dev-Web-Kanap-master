@@ -69,13 +69,15 @@ function getStorage(){
 
 function ajoutProduit(produit){
   let storage = getStorage();
-  let product = storage.find(p => p.id == produit.id) 
-    if (product!= undefined){             /*si le produit est different de indefini on ajoute la quantité*/
+  /*let product permet de chercher par id si le produit est dans le local storage et de l'enregistrer */
+  let product = storage.find(p => p.id == produit.id && p.color === produit.color) 
+
+  if (product != undefined){             /*si le produit est different de indefini on ajoute la quantité*/
     product.quantity += produit.quantity 
-    } else {                              /* sinon */
+  } else {                              /* sinon */
     storage.push(produit);                /* ajoute le produit si on trouve un element ajouter*/
-    } 
-    saveStorage(storage)                  /* on sauvegarde*/
+  } 
+  saveStorage(storage)                  /* on sauvegarde*/
   }
 
 
@@ -110,7 +112,6 @@ async function main() {
       quantity: parseInt(quantity), /* pour que la quantité soit traduite en number*/
       image: article.imageUrl,
       alt: article.altTxt,
-      price: article.price,
       name: article.name
     }
 

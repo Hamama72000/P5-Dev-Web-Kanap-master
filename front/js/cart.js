@@ -1,6 +1,14 @@
-// Faire appel au localStorage,  on récupère le contenu du  sous forme de tableau
-function getStorage() {
-  return JSON.parse(localStorage.getItem("storage"));
+// Faire appel au localStorage,  on récupère le contenu du local  sous forme de tableau
+async function getStorage() {
+  const products = JSON.parse(localStorage.getItem("storage"))
+
+  const productsFromServer =  await Promise.all(products.map(p => getArticle(p.id)))
+
+  return products.map((p, index) => {
+    p.price = productsFromServer[index].price //on passe par le serveur et non le local storage pour le prix
+
+    return p
+  })
 }
 
 // Création du DOM
@@ -10,7 +18,7 @@ const createCartItems = (storage) => {
 
   storage.map(s => {
     items += `
-    <article class="cart__item" data-id="${s.id}" data-color="${s.color}">
+<article class="cart__item" data-id="${s.id}" data-color="${s.color}">
       <div class="cart__item__img">
         <img src="${s.image}" alt="${s.alt}">
       </div>
@@ -22,7 +30,7 @@ const createCartItems = (storage) => {
         </div>
         <div class="cart__item__content__settings">
           <div class="cart__item__content__settings__quantity">
-            <p>Qté : </p>
+            <p>Qté :     </p>
             <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${s.quantity}">
           </div>
           <div class="cart__item__content__settings__delete">
@@ -37,12 +45,14 @@ const createCartItems = (storage) => {
   sectionItems.innerHTML = items
 };
 
-function updateTotal () {
-  const storage = getStorage()
+/* Fonction pour calculer le total */
+async function updateTotal () {
+  const storage = await getStorage()
   let totalPrice = 0
   let totalQuantity = 0
 
-  storage.map(s =>{
+  storage.map(async (s) => {
+
     totalPrice += s.price * s.quantity
     totalQuantity += s.quantity
   })
@@ -51,9 +61,10 @@ function updateTotal () {
   document.getElementById('totalQuantity').innerText = totalQuantity
 }
 
-function orderProducts () {
+/*Création du formulaire */
+async function orderProducts () {
   const url = "http://localhost:3000/api/products/order"
-  const storage = getStorage()
+  const storage = await getStorage()
   const firstName = document.getElementById('firstName').value
   const lastName = document.getElementById('lastName').value
   const address = document.getElementById('address').value
@@ -61,6 +72,11 @@ function orderProducts () {
   const email = document.getElementById('email').value
   const products = storage.map(s => s.id)
   
+  if (firstName.match(/[0-9]+/) || lastName.match(/[0-9]+/)) {
+    alert('error message')
+    return
+  }
+/* Envoyer les données au serveur via le formulaire */
   fetch(url, {
     method: "POST",
     body: JSON.stringify({
@@ -85,9 +101,27 @@ function orderProducts () {
   })
 }
 
+// Récupération de l'id au niveau de l'URL
+async function getArticle(id) {
+  return await fetch(`http://localhost:3000/api/products/${id}`)
+    .then(function (res) {
+      if (res.ok) {
+        return res.json();
+      }
+    })
+    .then((article) => {
+      return article
+    })
+    .catch(function (error) {
+      alert('Error')
+      console.log('error', error)
+    }); 
+}
+
+/*Fonction qui gère vérification du formulaire et du panier */
 async function main() {
   updateTotal()
-  createCartItems(getStorage());
+  createCartItems(await getStorage());
   document.getElementById('order').onclick = (e) => {
     e.preventDefault()
     orderProducts()
