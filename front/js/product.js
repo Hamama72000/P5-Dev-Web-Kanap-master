@@ -88,6 +88,7 @@ function ajoutProduit(produit){
   }
   alert('Votre produit a bien été ajouté à votre panier!')
   saveStorage(storage)   /* on sauvegarde*/
+  window.location.reload();/* mettre à zéro */
 }
 
 
@@ -132,4 +133,7 @@ async function main() {
 
 
 
+
 main()
+
+
