@@ -31,7 +31,7 @@ const createCartItems = (storage) => {
         <div class="cart__item__content__settings">
           <div class="cart__item__content__settings__quantity">
             <p>Qté :     </p>
-            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${s.quantity}">
+            <input onchange="updateQuantity(this, ${index})" type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${s.quantity}">
           </div>
           <div class="cart__item__content__settings__delete">
             <p class="deleteItem" onclick="removeProduct(${index})">Supprimer</p>
@@ -53,6 +53,20 @@ function removeProduct (index) {
   localStorage.setItem("storage", JSON.stringify(products))
   location.reload()
 }
+
+function updateQuantity(elm, index) {
+  const products = JSON.parse(localStorage.getItem("storage"))
+  const quantity = parseInt(elm.value || 0)
+
+  if (quantity > 100 || quantity < 1) {
+    alert('QUantité maximum atteinte!')
+    return
+  }
+  products[index].quantity = quantity
+  localStorage.setItem('storage', JSON.stringify(products))
+  updateTotal()
+}
+
 
 /* Fonction pour calculer le total */
 async function updateTotal () {
