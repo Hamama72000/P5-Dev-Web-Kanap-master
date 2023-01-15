@@ -16,7 +16,7 @@ const createCartItems = (storage) => {
   const sectionItems = document.getElementById("cart__items");
   let items = ""
 
-  storage.map(s => {
+  storage.map((s, index) => {
     items += `
 <article class="cart__item" data-id="${s.id}" data-color="${s.color}">
       <div class="cart__item__img">
@@ -34,7 +34,7 @@ const createCartItems = (storage) => {
             <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${s.quantity}">
           </div>
           <div class="cart__item__content__settings__delete">
-            <p class="deleteItem">Supprimer</p>
+            <p class="deleteItem" onclick="removeProduct(${index})">Supprimer</p>
           </div>
         </div>
       </div>
@@ -44,6 +44,15 @@ const createCartItems = (storage) => {
 
   sectionItems.innerHTML = items
 };
+
+/* Fonction pour supprimer les produits */
+function removeProduct (index) {
+  const products = JSON.parse(localStorage.getItem("storage"))
+  
+  products.splice(index, 1)
+  localStorage.setItem("storage", JSON.stringify(products))
+  location.reload()
+}
 
 /* Fonction pour calculer le total */
 async function updateTotal () {
@@ -71,11 +80,17 @@ async function orderProducts () {
   const city = document.getElementById('city').value
   const email = document.getElementById('email').value
   const products = storage.map(s => s.id)
-  
-  if (firstName.match(/[0-9]+/) || lastName.match(/[0-9]+/)) {
-    alert('error message')
+
+  if (
+    (firstName.match(/[0-9]+/) || firstName.match(/[0-9]+/)) ||
+    (lastName.match(/[0-9]+/) || lastName.match(/[0-9]+/)) ||
+    !address.match(/^[a-zA-Z0-9\s\,\''\-]*$/) ||
+    !city.match(/^^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/) ||
+    !email.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)
+  ) {
     return
   }
+  
 /* Envoyer les données au serveur via le formulaire */
   fetch(url, {
     method: "POST",
@@ -126,6 +141,57 @@ async function main() {
     e.preventDefault()
     orderProducts()
   }
-}
+  
+  /* Regex pour message d'erreurs sous les inputs */
+  document.getElementById('firstName').onchange = (e) => {
+    const value = e.target.value
+    
+    if (value.match(/[0-9]+/) || value.match(/[0-9]+/)) {
+      document.getElementById('firstNameErrorMsg').innerHTML = "Veuillez entrer votre prénom"
+    } else {
+      document.getElementById('firstNameErrorMsg').innerHTML = ""
+    }
+  }
 
+  document.getElementById('lastName').onchange = (e) => {
+    const value = e.target.value
+    
+    if (value.match(/[0-9]+/) || value.match(/[0-9]+/)) {
+      document.getElementById('lastNameErrorMsg').innerHTML = "Indiquez votre nom"
+    } else {
+      document.getElementById('lastNameErrorMsg').innerHTML = ""
+    }
+  }
+
+  document.getElementById('address').onchange = (e) => {
+    const value = e.target.value
+    
+    if (!value.match(/^[a-zA-Z0-9\s\,\''\-]*$/)) {
+      document.getElementById('addressErrorMsg').innerHTML = "Merci de préciser votre adresse complète. Par-exemple: 26 rue de Berne"
+    } else {
+      document.getElementById('addressErrorMsg').innerHTML = ""
+    }
+  }
+
+  document.getElementById('city').onchange = (e) => {
+    const value = e.target.value
+    
+    if (!value.match(/^^[a-zA-Z]+(?:[\s-][a-zA-Z]+)*$/)) {
+      document.getElementById('cityErrorMsg').innerHTML = "Renseignez votre ville. Par-exemple: Paris"
+    } else {
+      document.getElementById('cityErrorMsg').innerHTML = ""
+    }
+  }
+
+  document.getElementById('email').onchange = (e) => {
+    const value = e.target.value
+    
+    if (!value.match(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/)) {
+      document.getElementById('emailErrorMsg').innerHTML = "Merci d'indiquer une adresse e.mail valide, par-exemple: marie.dupont@gmail.com"
+    } else {
+      document.getElementById('emailErrorMsg').innerHTML = ""
+    }
+  }
+}
+ 
 main();

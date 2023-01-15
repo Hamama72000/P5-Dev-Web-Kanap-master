@@ -68,17 +68,27 @@ function getStorage(){
 }
 
 function ajoutProduit(produit){
+  console.log('-->', produit)
+  if (!produit.color) {
+    alert("Veuillez sélectionner une couleur")
+    return
+  }
+  if (produit.quantity < 1 || produit.quantity > 100){
+    alert("Veuillez sélectionner une quantité entre 1 et 100")
+    return
+  }
   let storage = getStorage();
   /*let product permet de chercher par id si le produit est dans le local storage et de l'enregistrer */
   let product = storage.find(p => p.id == produit.id && p.color === produit.color) 
 
   if (product != undefined){             /*si le produit est different de indefini on ajoute la quantité*/
-    product.quantity += produit.quantity 
+  product.quantity += produit.quantity 
   } else {                              /* sinon */
     storage.push(produit);                /* ajoute le produit si on trouve un element ajouter*/
-  } 
-  saveStorage(storage)                  /* on sauvegarde*/
   }
+  alert('Votre produit a bien été ajouté à votre panier!')
+  saveStorage(storage)   /* on sauvegarde*/
+}
 
 
 async function main() {
@@ -109,7 +119,7 @@ async function main() {
     const articleStorage = {
       id : articleID, 
       color: color,
-      quantity: parseInt(quantity), /* pour que la quantité soit traduite en number*/
+      quantity: parseInt(quantity || 0), /* pour que la quantité soit traduite en number*/
       image: article.imageUrl,
       alt: article.altTxt,
       name: article.name
